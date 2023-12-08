@@ -56,8 +56,17 @@ namespace RazorWeb
 
             app.UseEndpoints(endpoints =>
             {
-                endpoints.MapRazorPages();
+                endpoints.MapRazorPages(
+                    
+                    );
             });
+           
         }
     }
 }
+
+
+/*
+ * CREATE, READ, UPDATE, DELETE (CRUD)
+    dotnet aspnet-codegenerator razorpage -m RazorWeb.Models.Article -dc RazorWeb.Models.MyBlogContext -outDir Pages/Blog -udl --referenceScriptLibraries
+ */
