@@ -7,6 +7,7 @@ using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Hosting;
+using Microsoft.Extensions.Options;
 using RazorWeb.Models;
 using System;
 
@@ -27,7 +28,7 @@ namespace RazorWeb
             services.AddOptions();
             var mailsetting = Configuration.GetSection("MailSettings");
             services.Configure<MailSettings>(mailsetting);
-            services.AddSingleton<IEmailSender , SendMailService>();
+            services.AddSingleton<IEmailSender, SendMailService>();
 
             services.AddRazorPages();
             services.AddDbContext<MyBlogContext>(options =>
@@ -50,7 +51,8 @@ namespace RazorWeb
 
 
             // Truy cập IdentityOptions
-            services.Configure<IdentityOptions>(options => {
+            services.Configure<IdentityOptions>(options =>
+            {
                 // Thiết lập về Password
                 options.Password.RequireDigit = false; // Không bắt phải có số
                 options.Password.RequireLowercase = false; // Không bắt phải có chữ thường
@@ -82,6 +84,27 @@ namespace RazorWeb
                 options.LogoutPath = "/logout/";
                 options.AccessDeniedPath = "/khongduoctruycap.html";
             });
+
+
+            services.AddAuthentication()
+                .AddGoogle(options =>
+                {
+                    var gconfig = Configuration.GetSection("Authentication:Google");
+                    options.ClientId = gconfig["ClientId"];
+                    options.ClientSecret = gconfig["ClientSecret"];
+                    // https://localhost:5001/signin-google
+                    options.CallbackPath = "/dang-nhap-tu-google";
+                });
+                //.AddFacebook(fconfig =>
+                //{
+                //    var facebookAuthNSection = Configuration.GetSection("Authentication : Facebook");
+                //    fconfig.ClientId = facebookAuthNSection["AppId"];
+                //    fconfig.AppSecret = facebookAuthNSection["AppSecret"];
+                //    fconfig.CallbackPath = "/dang-nhap-tu-facebook";
+
+                //});
+
+
         }
 
         // This method gets called by the runtime. Use this method to configure the HTTP request pipeline.
@@ -103,15 +126,16 @@ namespace RazorWeb
 
             app.UseRouting();
             app.UseAuthentication();
+
             app.UseAuthorization();
 
             app.UseEndpoints(endpoints =>
             {
                 endpoints.MapRazorPages(
-                    
+
                     );
             });
-           
+
         }
     }
 }
