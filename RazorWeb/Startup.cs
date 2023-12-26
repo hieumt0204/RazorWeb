@@ -94,7 +94,7 @@ namespace RazorWeb
                     options.ClientSecret = gconfig["ClientSecret"];
                     // https://localhost:5001/signin-google
                     options.CallbackPath = "/dang-nhap-tu-google";
-                });
+                }); 
                 //.AddFacebook(fconfig =>
                 //{
                 //    var facebookAuthNSection = Configuration.GetSection("Authentication : Facebook");

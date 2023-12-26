@@ -1,15 +1,16 @@
-using System;
-using System.Collections.Generic;
-using System.ComponentModel.DataAnnotations;
-using System.Linq;
-using System.Threading.Tasks;
+﻿using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Mvc.RazorPages;
+using Microsoft.VisualBasic;
 using RazorWeb.Models;
+using System;
+using System.ComponentModel.DataAnnotations;
+using System.Threading.Tasks;
 
 namespace RazorWeb.Areas.Identity.Pages.Account.Manage
 {
+    [Authorize]
     public partial class IndexModel : PageModel
     {
         private readonly UserManager<AppUser> _userManager;
@@ -33,9 +34,19 @@ namespace RazorWeb.Areas.Identity.Pages.Account.Manage
 
         public class InputModel
         {
-            [Phone]
-            [Display(Name = "Phone number")]
+            [Phone(ErrorMessage = "{0} sai định dạng")]
+            [Display(Name = "Số điện thoại")]
+            //[StringLength(10, MinimumLength = 2, ErrorMessage = "{0} phải từ {2} đến {1} kí tự")]
             public string PhoneNumber { get; set; }
+
+            [Display(Name = "Địa chỉ")]
+            [StringLength(400)]
+            public string HomeAdress { get; set; }
+
+            [DataType(DataType.Date)]
+            [Display(Name = "Ngày sinh")]
+            public DateTime? BirthDate { get; set; }
+
         }
 
         private async Task LoadAsync(AppUser user)
@@ -47,7 +58,10 @@ namespace RazorWeb.Areas.Identity.Pages.Account.Manage
 
             Input = new InputModel
             {
-                PhoneNumber = phoneNumber
+                PhoneNumber = phoneNumber,
+                HomeAdress = user.HomeAdress,
+                BirthDate = user.BirthDate
+
             };
         }
 
@@ -77,19 +91,25 @@ namespace RazorWeb.Areas.Identity.Pages.Account.Manage
                 return Page();
             }
 
-            var phoneNumber = await _userManager.GetPhoneNumberAsync(user);
-            if (Input.PhoneNumber != phoneNumber)
-            {
-                var setPhoneResult = await _userManager.SetPhoneNumberAsync(user, Input.PhoneNumber);
-                if (!setPhoneResult.Succeeded)
-                {
-                    StatusMessage = "Unexpected error when trying to set phone number.";
-                    return RedirectToPage();
-                }
-            }
+            //var phoneNumber = await _userManager.GetPhoneNumberAsync(user);
+            //if (Input.PhoneNumber != phoneNumber)
+            //{
+            //    var setPhoneResult = await _userManager.SetPhoneNumberAsync(user, Input.PhoneNumber);
+            //    if (!setPhoneResult.Succeeded)
+            //    {
+            //        StatusMessage = "Unexpected error when trying to set phone number.";
+            //        return RedirectToPage();
+            //    }
+            //}
+
+            user.HomeAdress = Input.HomeAdress;
+            user.PhoneNumber = Input.PhoneNumber;
+            user.BirthDate = Input.BirthDate;
+
+            await _userManager.UpdateAsync(user);
 
             await _signInManager.RefreshSignInAsync(user);
-            StatusMessage = "Your profile has been updated";
+            StatusMessage = "Hồ sơ của bạn đã được cập nhật";
             return RedirectToPage();
         }
     }
